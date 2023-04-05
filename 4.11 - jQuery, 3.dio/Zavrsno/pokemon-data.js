@@ -17,7 +17,7 @@ $(document).ready(function() {
     // priprema poziva na (pokemon) API
     // request.open("GET", "https://pokeapi.co/api/v2/pokemon-color/yellow/", true);
 
-    function popuniPokemone(data){
+    function prikažiPokemone(data){
         //const resp = JSON.parse(request.response);
         //console.log(resp);
         const sourceHTML = document.getElementById("lista-pokemona").innerHTML;
@@ -26,7 +26,37 @@ $(document).ready(function() {
         const html = template(ctxData);
 
         document.getElementById("div-pokemoni").innerHTML = html;
-        $('[data-bs-toggle="popover"]').popover();
+    }
+
+    function popuniPokemone1(podatci){
+        console.log("invoked popuniPokemone1...");
+        let pokemoni = podatci.pokemon_species.slice(0,20);
+        console.log(pokemoni);
+        for(let i = 0; i < pokemoni.length; i++){
+            let onePokemon = pokemoni[i];
+            //console.log("-----> " + pokemon.name + "; url: " + pokemon.url);
+            dohvatiDetalje(onePokemon);
+        }
+    }
+
+    function dohvatiDetalje(pokemon){
+        $.ajax({
+            url: pokemon.url,
+          }).done(function(podatci) {
+              const imePokemona = pokemon.name;
+              const urlPokemona = pokemon.url;
+              const habi = podatci.habitat.name;
+              const grow = podatci.growth_rate.name;
+
+              let myPokemon = {
+                  name: imePokemona,
+                  url: urlPokemona,
+                  habitat: habi,
+                  growth: grow
+              };
+              listaPokemona.push(myPokemon);
+            //console.log("Pokemon: " + imePokemona + ", " + habi + ", " + grow);
+          })
     }
 
     
@@ -67,6 +97,7 @@ $(document).ready(function() {
     }
 
     function odradiOstalo(){
+        $('[data-bs-toggle="popover"]').popover();
         dodajPruge();
         dodajHeaderBoju();
         nakon2Sekunde();
@@ -90,8 +121,10 @@ $(document).ready(function() {
         url: "https://pokeapi.co/api/v2/pokemon-color/yellow/",
       }).done(function(podatci) {
         console.log("super");
-        popuniPokemone(podatci);
-        odradiOstalo();
+        //popuniPokemone(podatci);
+        popuniPokemone1(podatci);
+        prikažiPokemone();
+        //odradiOstalo();
       }).fail(function() {
         console.log("error");
         $('<div id="error"></div>')
